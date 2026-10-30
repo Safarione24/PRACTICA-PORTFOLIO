@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - appnet
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+  nginx:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      - app
+    networks:
+      - appnet
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  appnet:
