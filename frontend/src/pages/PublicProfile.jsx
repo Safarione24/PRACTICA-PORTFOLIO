@@ -15,35 +15,43 @@ export default function PublicProfile() {
   }, [username])
 
   if (loading) return <p className="container">Загрузка...</p>
-  if (!profile) return <p className="container">Профиль не найден</p>
+  if (!profile) return <p className="container">Профиль не найден 😢</p>
 
   return (
     <div>
-      <div className="card">
-        <h2>{profile.full_name || profile.user?.username}</h2>
-        <p style={{ color: '#555', whiteSpace: 'pre-wrap' }}>{profile.bio}</p>
-        {profile.avatar && (
-          <img 
-            src={profile.avatar} 
-            alt="avatar" 
-            style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', marginTop: 10 }} 
-          />
-        )}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+        <button onClick={() => window.print()} style={{ background: '#1e293b' }}>
+          🖨 Сохранить в PDF
+        </button>
       </div>
 
-      <h2>Проекты</h2>
+      <div className="card" style={{ textAlign: 'center' }}>
+        {profile.avatar && (
+          <img 
+            src={profile.avatar.startsWith('http') ? profile.avatar : `http://127.0.0.1:8000${profile.avatar}`} 
+            alt="avatar" 
+            style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: '50%', border: '4px solid #e0e7ff', marginBottom: 15 }} 
+          />
+        )}
+        <h2 style={{ margin: '0 0 10px 0' }}>{profile.full_name || profile.user?.username}</h2>
+        <p style={{ color: '#94a3b8', margin: '0 0 15px 0' }}>👁 Просмотров портфолио: {profile.views || 0}</p>
+        <p style={{ color: '#475569', whiteSpace: 'pre-wrap', maxWidth: 600, margin: '0 auto' }}>{profile.bio}</p>
+      </div>
+
+      <h2>🚀 Проекты</h2>
       {profile.projects?.length === 0 ? (
-        <p>Проектов пока нет.</p>
+        <p style={{ color: '#64748b' }}>Проектов пока нет.</p>
       ) : (
-        <div>
+        <div style={{ display: 'grid', gap: 20 }}>
           {profile.projects?.map(p => (
             <div key={p.id} className="card">
               <h3 style={{ marginTop: 0 }}>{p.title}</h3>
-              <a href={p.link} target="_blank" rel="noreferrer">{p.link}</a>
-              {p.description && <p>{p.description}</p>}
-              <div style={{ marginTop: 10 }}>
+              <a href={p.link} target="_blank" rel="noreferrer" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500 }}>{p.link}</a>
+              {p.description && <p style={{ color: '#475569' }}>{p.description}</p>}
+              
+              <div style={{ marginTop: 15 }}>
                 {p.skills?.map(s => (
-                  <span key={s.id} style={{ background: '#e0e7ff', color: '#4338ca', padding: '3px 8px', marginRight: 5, borderRadius: 6, fontSize: 14 }}>
+                  <span key={s.id} style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 10px', marginRight: 5, borderRadius: 8, fontSize: 13, fontWeight: 500 }}>
                     {s.name}
                   </span>
                 ))}
@@ -53,14 +61,14 @@ export default function PublicProfile() {
         </div>
       )}
 
-      <h2>Навыки</h2>
+      <h2>🛠 Навыки</h2>
       <div className="card">
         {profile.skills?.length === 0 ? (
-          <p>Навыков пока нет.</p>
+          <p style={{ color: '#64748b' }}>Навыков пока нет.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {profile.skills?.map(s => (
-              <li key={s.id} style={{ background: '#f3f4f6', padding: '8px 16px', borderRadius: 20, fontWeight: 500 }}>
+              <li key={s.id} style={{ background: '#f1f5f9', padding: '8px 16px', borderRadius: 20, fontWeight: 500, color: '#334155' }}>
                 {s.name}
               </li>
             ))}

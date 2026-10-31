@@ -8,6 +8,7 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view()),
     path('profile/', views.ProfileView.as_view()),
     path('projects/', views.ProjectListCreateView.as_view()),
+    path('projects/export/', views.ProjectExportView.as_view()),
     path('projects/<int:pk>/', views.ProjectDetailView.as_view()),
     path('skills/', views.SkillListCreateView.as_view()),
     path('skills/<int:pk>/', views.SkillDetailView.as_view()),

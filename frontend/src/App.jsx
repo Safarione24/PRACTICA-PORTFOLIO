@@ -22,19 +22,23 @@ function App() {
       <nav className="navbar">
         {token ? (
           <>
-            <span>Привет, {username} </span>
-            <Link to="/" style={{ margin: 10 }}>Мои проекты</Link>
-            <Link to="/profile" style={{ margin: 10 }}>Профиль</Link>
-            <button onClick={logout}>Выйти</button>
+            <span style={{ fontWeight: 'bold' }}>Привет, {username} 👋</span>
+            <div>
+              <Link to="/">📁 Проекты</Link>
+              <Link to="/profile">👤 Профиль</Link>
+              <button onClick={logout} style={{ padding: '8px 16px', fontSize: 14, marginLeft: 10 }}>
+                🚪 Выйти
+              </button>
+            </div>
           </>
         ) : (
           <>
-            <Link to="/login" style={{ margin: 10 }}>Вход</Link>
-            <Link to="/register" style={{ margin: 10 }}>Регистрация</Link>
+            <Link to="/login">Вход</Link>
+            <Link to="/register">Регистрация</Link>
           </>
         )}
       </nav>
-      <div className="container">
+      <div className="container animate-fade">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

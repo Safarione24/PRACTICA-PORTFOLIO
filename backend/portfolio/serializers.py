@@ -32,9 +32,7 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 class ProjectSerializer(serializers.ModelSerializer):
-    # При чтении показываем полную инфу о навыках
     skills = SkillSerializer(many=True, read_only=True)
-    # При записи принимаем только ID навыков
     skill_ids = serializers.PrimaryKeyRelatedField(
         many=True, write_only=True, queryset=Skill.objects.all(), required=False, source='skills'
     )
@@ -44,16 +42,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'link', 'description', 'skills', 'skill_ids', 'created_at')
 
     def update(self, instance, validated_data):
-        # Извлекаем навыки, если они есть
         skills_data = validated_data.pop('skills', None)
-        
-        # Обновляем текстовые поля (title, link, description)
         instance = super().update(instance, validated_data)
-        
-        # Если передали навыки, привязываем их к проекту
         if skills_data is not None:
             instance.skills.set(skills_data)
-            
         return instance
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -63,7 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'full_name', 'bio', 'avatar', 'resume', 'projects', 'skills')
+        fields = ('user', 'full_name', 'bio', 'avatar', 'resume', 'projects', 'skills', 'views')
 
     def get_projects(self, obj):
         return ProjectSerializer(obj.user.projects.all(), many=True).data
