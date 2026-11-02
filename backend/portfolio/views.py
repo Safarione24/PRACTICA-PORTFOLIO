@@ -27,7 +27,12 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Project.objects.filter(user=self.request.user).order_by('-created_at')
+        queryset = Project.objects.filter(user=self.request.user).order_by('-created_at')
+        ids_param = self.request.query_params.get('ids')
+        if ids_param:
+            id_list = [int(x) for x in ids_param.split(',')]
+            queryset = queryset.filter(id__in=id_list)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -39,6 +44,7 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Project.objects.filter(user=self.request.user)
 
+# --- ВОТ ЭТИ ДВА КЛАССА ТЫ СЛУЧАЙНО УДАЛИЛ ---
 class SkillListCreateView(generics.ListCreateAPIView):
     serializer_class = SkillSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -55,6 +61,7 @@ class SkillDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Skill.objects.filter(user=self.request.user)
+# ---------------------------------------------
 
 class PublicProfileView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
@@ -75,11 +82,17 @@ class ProjectExportView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        ids_param = request.query_params.get('ids')
+        queryset = Project.objects.filter(user=request.user)
+        if ids_param:
+            id_list = [int(x) for x in ids_param.split(',')]
+            queryset = queryset.filter(id__in=id_list)
+
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.append(['Название', 'Ссылка', 'Описание', 'Навыки'])
         
-        for p in Project.objects.filter(user=request.user):
+        for p in queryset:
             skills_str = ", ".join([s.name for s in p.skills.all()])
             ws.append([p.title, p.link, p.description, skills_str])
         

@@ -62,3 +62,26 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_skills(self, obj):
         return SkillSerializer(obj.user.skills.all(), many=True).data
+    
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import Profile, Project, Skill
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    skills = SkillSerializer(many=True, read_only=True)
+    skill_ids = serializers.PrimaryKeyRelatedField(
+        many=True, write_only=True, queryset=Skill.objects.all(), required=False, source='skills'
+    )
+
+    class Meta:
+        model = Project
+        fields = ('id', 'title', 'link', 'description', 'image', 'skills', 'skill_ids', 'created_at') # <--- добавили image
+
+    def update(self, instance, validated_data):
+        skills_data = validated_data.pop('skills', None)
+        instance = super().update(instance, validated_data)
+        if skills_data is not None:
+            instance.skills.set(skills_data)
+        return instance
+

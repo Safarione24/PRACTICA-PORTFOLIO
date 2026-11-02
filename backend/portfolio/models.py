@@ -7,7 +7,7 @@ class Profile(models.Model):
     bio = models.TextField(max_length=1000, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
-    views = models.IntegerField(default=0) # Счетчик просмотров
+    views = models.IntegerField(default=0)
 
 class Skill(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='skills')
@@ -18,5 +18,6 @@ class Project(models.Model):
     title = models.CharField(max_length=120)
     link = models.URLField()
     description = models.TextField(max_length=2000, blank=True)
+    image = models.ImageField(upload_to='project_images/', blank=True, null=True) # <--- НОВОЕ ПОЛЕ
     skills = models.ManyToManyField(Skill, blank=True, related_name='projects')
     created_at = models.DateTimeField(auto_now_add=True)

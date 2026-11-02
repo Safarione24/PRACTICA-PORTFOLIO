@@ -1,25 +1,38 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import api from '../api'
 
 export default function PublicProfile() {
   const { username } = useParams()
+  const location = useLocation()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Проверяем, есть ли в URL параметр для печати выбранных проектов
+  const queryParams = new URLSearchParams(location.search)
+  const printIds = queryParams.get('print_ids')
+  const printIdList = printIds ? printIds.split(',').map(Number) : null
+
   useEffect(() => {
     api.get(`/u/${username}/`)
-      .then(res => setProfile(res.data))
+      .then(res => {
+        let data = res.data
+        // Если передан список ID для печати, фильтруем проекты
+        if (printIdList) {
+          data.projects = data.projects.filter(p => printIdList.includes(p.id))
+        }
+        setProfile(data)
+      })
       .catch(() => setProfile(null))
       .finally(() => setLoading(false))
-  }, [username])
+  }, [username, printIds])
 
   if (loading) return <p className="container">Загрузка...</p>
   if (!profile) return <p className="container">Профиль не найден 😢</p>
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+      <div className="print-hide" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
         <button onClick={() => window.print()} style={{ background: '#1e293b' }}>
           🖨 Сохранить в PDF
         </button>
@@ -49,6 +62,15 @@ export default function PublicProfile() {
               <a href={p.link} target="_blank" rel="noreferrer" style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500 }}>{p.link}</a>
               {p.description && <p style={{ color: '#475569' }}>{p.description}</p>}
               
+              {/* Вывод картинки проекта */}
+              {p.image && (
+                <img 
+                src={p.image.startsWith('http') ? p.image : `http://127.0.0.1:8000${p.image}`} 
+                alt={p.title} 
+                style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, marginTop: 10, marginBottom: 10, objectFit: 'cover' }} 
+              />
+              )}
+
               <div style={{ marginTop: 15 }}>
                 {p.skills?.map(s => (
                   <span key={s.id} style={{ background: '#e0e7ff', color: '#4338ca', padding: '4px 10px', marginRight: 5, borderRadius: 8, fontSize: 13, fontWeight: 500 }}>
